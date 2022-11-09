@@ -18,5 +18,24 @@ export type Movie = {
   budget: number;
   runtime: number;
   revenue: number;
-  realease_date: string;
+  release_date: string;
+};
+
+export type Credits = {
+  id: number;
+  cast: Cast[];
+  crew: Crew[];
+};
+
+export type Crew = {
+  job: string;
+  name: string;
+  credit_id: number;
+};
+
+export type Cast = {
+  character: string;
+  credit_id: string;
+  name: string;
+  profile_path: string;
 };

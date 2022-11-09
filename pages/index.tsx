@@ -1,7 +1,9 @@
 import { NextPage } from 'next';
-import { useState } from 'react';
+import { UIEvent, useState } from 'react';
 import { useFetchMovies } from '../api/fetchHooks';
 import { BACKDROP_SIZE, IMAGE_BASE_URL, POSTER_SIZE } from '../config';
+
+import Link from 'next/link';
 
 import Header from '../components/header/Header';
 import Hero from '../components/hero/Hero';
@@ -16,8 +18,14 @@ const Home: NextPage = ({}: HomeProps) => {
 
   const { data, fetchNextPage, isLoading, isFetching, error } = useFetchMovies(query);
 
+  const handleScroll = (event: UIEvent<HTMLElement>) => {
+    const { scrollTop, clientHeight, scrollHeight } = event.currentTarget;
+
+    if (scrollHeight - scrollTop === clientHeight) fetchNextPage();
+  };
+
   return (
-    <main className="relative h-screen overflow-y-scroll">
+    <main className="relative h-screen overflow-y-scroll" onScroll={handleScroll}>
       <Header setQuery={setQuery} />
 
       {!query && data && data.pages ? (
@@ -39,22 +47,24 @@ const Home: NextPage = ({}: HomeProps) => {
         {data && data.pages
           ? data.pages.map((page) =>
               page.results.map((movie) => (
-                <div key={movie.id}>
-                  <Card
-                    imgUrl={
-                      movie.poster_path
-                        ? IMAGE_BASE_URL + POSTER_SIZE + movie.poster_path
-                        : '/no_image.jpg'
-                    }
-                    title={movie.title}
-                  />
-                </div>
+                <Link href={`/${movie.id}`} key={movie.id}>
+                  <div className="cursor-pointer hover:opacity-80 duration-300">
+                    <Card
+                      imgUrl={
+                        movie.poster_path
+                          ? IMAGE_BASE_URL + POSTER_SIZE + movie.poster_path
+                          : '/no_image.jpg'
+                      }
+                      title={movie.title}
+                    />
+                  </div>
+                </Link>
               ))
             )
           : null}
       </Grid>
 
-      <Spinner />
+      {isLoading || isFetching ? <Spinner /> : null}
     </main>
   );
 };
